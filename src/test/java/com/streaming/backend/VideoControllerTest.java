@@ -1,10 +1,9 @@
-package streaming;
+package com.streaming.backend;
 
 import com.streaming.backend.models.Video;
 import com.streaming.backend.repositories.VideoRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,7 +37,7 @@ public class VideoControllerTest {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "video.mp4", "video/mp4", "conteudo fake".getBytes());
 
-        mockMvc.perform(multipart("videos")
+        mockMvc.perform(multipart("/api/videos")
                 .file(file))
                 .andExpect(status().isCreated());
 
@@ -46,7 +45,7 @@ public class VideoControllerTest {
         assertEquals(1, videos.size());
 
         Video video = videos.get(0);
-        Path expectedPath = Paths.get(System.getProperty("user.dir"), "var/www/videos", video.getId() + ".mp4");
+        Path expectedPath = Paths.get("/var/www/videos", video.getId() + ".mp4");
         assertEquals(expectedPath.toString(), video.getPathArchive());
 
         assertTrue(Files.exists(expectedPath));

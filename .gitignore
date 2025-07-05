@@ -39,3 +39,4 @@ out/
 ### amb variables ###
 *.properties
 
+/target/**
