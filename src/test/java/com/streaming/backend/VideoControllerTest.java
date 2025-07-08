@@ -4,6 +4,7 @@ import com.streaming.backend.config.VideoStorageConfig;
 import com.streaming.backend.models.Video;
 import com.streaming.backend.repositories.VideoRepository;
 import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +17,9 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
+import static com.streaming.backend.utilities.Utilities.cleanUploadDir;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -37,9 +38,17 @@ public class VideoControllerTest {
     private VideoRepository videoRepository;
 
     @BeforeEach
-    public void clean() throws IOException {
-        Path uploadDir = VideoStorageConfig.UPLOAD_DIR;
+    public void beforeEach() throws IOException {
+        cleanUploadDir();
+    }
 
+    @AfterEach
+    public void afterEach() throws IOException {
+        cleanUploadDir();
+    }
+
+    public static void cleanUploadDir() throws IOException {
+        Path uploadDir = VideoStorageConfig.UPLOAD_DIR;
         Files.createDirectories(uploadDir);
 
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(uploadDir)) {
@@ -47,7 +56,6 @@ public class VideoControllerTest {
                 Files.deleteIfExists(file);
             }
         }
-
     }
 
     @Test
