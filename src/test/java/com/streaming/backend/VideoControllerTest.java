@@ -3,6 +3,7 @@ package com.streaming.backend;
 import com.streaming.backend.config.VideoStorageConfig;
 import com.streaming.backend.models.Video;
 import com.streaming.backend.repositories.VideoRepository;
+import com.streaming.backend.utilities.Utilities;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +20,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import static com.streaming.backend.utilities.Utilities.cleanUploadDir;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -77,5 +77,17 @@ public class VideoControllerTest {
         assertTrue(Files.exists(expectedPath));
     }
 
+    @Test
+    public void shouldConvertTheVideoThenSave() throws Exception {
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "video.mkv", "video/x-matroska", "conteudo fake".getBytes());
 
+        mockMvc.perform(multipart("/api/videos")
+                .file(file))
+                .andExpect(status().isCreated());
+
+        List<Video> videos = videoRepository.findAll();
+        Video video = videos.get(0);
+        assertEquals("mp4", Utilities.getFileExtension(video.getPathArchive()));
+    }
 }
