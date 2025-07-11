@@ -14,11 +14,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -79,8 +83,10 @@ public class VideoControllerTest {
 
     @Test
     public void shouldConvertTheVideoThenSave() throws Exception {
+        FileInputStream fileInputStream = (FileInputStream) getClass().getClassLoader().getResourceAsStream("videos/old_meme");
+
         MockMultipartFile file = new MockMultipartFile(
-                "file", "video.mkv", "video/x-matroska", "conteudo fake".getBytes());
+                "file", "old_meme.mp4","video/mp4", fileInputStream);
 
         mockMvc.perform(multipart("/api/videos")
                 .file(file))
