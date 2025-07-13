@@ -3,10 +3,8 @@ package com.streaming.backend.services;
 import com.streaming.backend.utilities.Utilities;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -24,13 +22,6 @@ public class VideoConversionService {
         Path tempOutput = Files.createTempFile("converted_", ".mp4");
 
         Process process = getConvertProcess(tempInput, tempOutput);
-
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                System.out.println(line);
-            }
-        }
 
         int exitCode = process.waitFor();
         if (exitCode != 0) {

@@ -13,16 +13,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -32,7 +30,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
 public class VideoControllerTest {
 
     @Autowired
@@ -95,5 +92,18 @@ public class VideoControllerTest {
         List<Video> videos = videoRepository.findAll();
         Video video = videos.get(0);
         assertEquals("mp4", Utilities.getFileExtension(video.getPathArchive()));
+    }
+
+    @Test
+    public void shouldMadeRollbackInfailInsertCase() throws Exception {
+        MockMultipartFile mockMultipartFile = new MockMultipartFile(
+                "file", "old_mememp4","video/x-matroska", "bytes_WithError".getBytes());
+
+        mockMvc.perform(multipart("/api/videos")
+                        .file(mockMultipartFile))
+                .andExpect(status().isInternalServerError());
+
+        List<Video> videos = videoRepository.findAll();
+        assertEquals(0, videos.size());
     }
 }
