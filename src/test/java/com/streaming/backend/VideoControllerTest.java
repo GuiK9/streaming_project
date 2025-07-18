@@ -53,13 +53,11 @@ public class VideoControllerTest {
     @BeforeEach
     public void beforeEach() throws IOException {
         cleanUploadDir();
-//        cleanUpLogDir();
     }
 
     @AfterEach
     public void afterEach() throws IOException {
         cleanUploadDir();
-//        cleanUpLogDir();
     }
 
     private void cleanUpLogDir() throws IOException {
