@@ -3,10 +3,7 @@ package com.streaming.backend.services;
 import com.streaming.backend.utilities.Utilities;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -17,17 +14,16 @@ public class VideoConversionService {
 
     private static final Logger logger = LoggerFactory.getLogger(VideoConversionService.class);
 
-    public static ByteArrayInputStream convertToMp4(MultipartFile multipartVideo) throws IOException, InterruptedException {
-        String fileExtension = Utilities.getFileExtension(Objects.requireNonNull(multipartVideo.getOriginalFilename()));
-        if (fileExtension.equals("mp4")) {
-            return (ByteArrayInputStream) multipartVideo.getInputStream();
+    public static ByteArrayInputStream convertToMp4(File inputFile) throws IOException, InterruptedException {
+        String fileExtension = Utilities.getFileExtension(inputFile.getName());
+        if (fileExtension.equalsIgnoreCase("mp4")) {
+            // Ler diretamente o conteúdo do arquivo mp4
+            byte[] videoBytes = Files.readAllBytes(inputFile.toPath());
+            return new ByteArrayInputStream(videoBytes);
         }
 
-        Path tempInput = Files.createTempFile("upload_", "_" + multipartVideo.getOriginalFilename());
-        multipartVideo.transferTo(tempInput.toFile());
         Path tempOutput = Files.createTempFile("converted_", ".mp4");
-
-        Process process = getConvertProcess(tempInput, tempOutput);
+        Process process = getConvertProcess(inputFile.toPath(), tempOutput);
         logProcessOutput(process);
 
         int exitCode = process.waitFor();
