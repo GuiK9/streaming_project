@@ -1,16 +1,19 @@
 package com.streaming.backend;
 
+import com.streaming.backend.config.DataSourceProperties;
+import com.streaming.backend.config.DatabaseTestInitializer;
 import com.streaming.backend.config.VideoStorageConfig;
 import com.streaming.backend.models.Video;
 import com.streaming.backend.repositories.VideoRepository;
+import com.streaming.backend.utilities.ProfileChecker;
 import com.streaming.backend.utilities.Utilities;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.File;
@@ -19,6 +22,9 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
@@ -31,6 +37,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
+@ContextConfiguration(initializers = DatabaseTestInitializer.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class VideoControllerTest {
 
     @Autowired
@@ -41,6 +50,28 @@ public class VideoControllerTest {
 
     @Value("${logging.path.logs}")
     private String logPath;
+
+    @Autowired
+    private DataSourceProperties dataSourceProperties;
+
+    ProfileChecker profileChecker;
+
+    @AfterAll
+    void dropDatabaseAfterTests() throws SQLException {
+        String adminUrl = "jdbc:postgresql://localhost:5432/postgres";
+        String username = dataSourceProperties.getUsername();
+        String password = dataSourceProperties.getPassword();
+
+        try (Connection conn = DriverManager.getConnection(adminUrl, username, password)) {
+            conn.createStatement().execute(
+                    "SELECT pg_terminate_backend(pid) " +
+                            "FROM pg_stat_activity " +
+                            "WHERE datname = 'streaming_test' AND pid <> pg_backend_pid();"
+            );
+
+            conn.createStatement().execute("DROP DATABASE streaming_test");
+        }
+    }
 
     @BeforeEach
     public void beforeEach() throws IOException {
