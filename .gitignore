@@ -38,5 +38,6 @@ out/
 
 ### amb variables ###
 *.properties
+/logs
 
 /target/**
