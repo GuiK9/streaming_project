@@ -3,7 +3,8 @@ package com.streaming.backend.services;
 import com.streaming.backend.config.VideoStorageConfig;
 import com.streaming.backend.models.Video;
 import com.streaming.backend.repositories.VideoRepository;
-import com.streaming.backend.utilities.Utilities;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,18 +26,21 @@ public class VideoService {
         this.videoRepository = videoRepository;
     }
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     @Transactional(rollbackFor = Exception.class)
     public void processVideoUploaded(byte[] fileBytes) throws IOException, InterruptedException {
-        Video video = videoRepository.save(Video.builder()
+        Video video = Video.builder()
                 .title("temp_title")
                 .description("temp_description")
-                .build());
+                .build();
 
         Path tempFilePath = Files.createTempFile("upload_", ".tmp");
         Files.write(tempFilePath, fileBytes);
         File tempFile = tempFilePath.toFile();
 
-        Path destination = VideoStorageConfig.UPLOAD_DIR.resolve(video.getId() + ".mp4");
+        Path destination = VideoStorageConfig.UPLOAD_DIR.resolve(getNextSeqVideo() + ".mp4");
         video.setPathArchive(destination.toString());
 
         saveVideoFile(tempFile, destination);
@@ -51,6 +55,13 @@ public class VideoService {
     private static void saveVideoFile(File file, Path destination) throws IOException, InterruptedException {
         ByteArrayInputStream convertedVideo = VideoConversionService.convertToMp4(file);
         Files.copy(convertedVideo, destination, StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    public Long getNextSeqVideo() {
+        return ((Number) entityManager
+                .createNativeQuery("SELECT nextval('video_file_seq')")
+                .getSingleResult())
+                .longValue();
     }
 
 }

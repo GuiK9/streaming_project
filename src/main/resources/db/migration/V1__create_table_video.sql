@@ -5,4 +5,7 @@ CREATE TABLE video (
     path_archive VARCHAR(500) NOT NULL
 );
 
-CREATE SEQUENCE video_file_seq START 1;
+CREATE SEQUENCE video_file_seq
+    START WITH 0
+    INCREMENT BY 1
+    MINVALUE 0;

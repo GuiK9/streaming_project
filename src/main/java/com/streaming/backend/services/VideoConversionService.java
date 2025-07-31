@@ -1,12 +1,10 @@
 package com.streaming.backend.services;
 
 import com.streaming.backend.utilities.Utilities;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +40,7 @@ public class VideoConversionService {
     private static Process getConvertProcess(Path tempInput, Path tempOutput) throws IOException {
         String[] command = {
                 "ffmpeg",
+                "-y",
                 "-i", tempInput.toString(),
                 "-c:v", "libx264",
                 "-preset", "medium",
@@ -61,9 +60,11 @@ public class VideoConversionService {
     private static void logProcessOutput(Process process) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
             String line;
+            logger.info("Conversion video log");
             while ((line = reader.readLine()) != null) {
                 logger.info("[FFMPEG] {}", line);
             }
+            logger.info("End conversion video log");
         } catch (IOException e) {
             logger.error("Error reading conversion output: ", e);
         }

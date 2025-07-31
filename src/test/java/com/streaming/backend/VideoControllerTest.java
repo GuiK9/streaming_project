@@ -18,18 +18,16 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
+import static com.streaming.backend.utilities.Util.cleanUploadDir;
+import static com.streaming.backend.utilities.Util.createConnection;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -58,52 +56,20 @@ public class VideoControllerTest {
 
     @AfterAll
     void dropDatabaseAfterTests() throws SQLException {
-        String adminUrl = "jdbc:postgresql://localhost:5432/postgres";
-        String username = dataSourceProperties.getUsername();
-        String password = dataSourceProperties.getPassword();
-
-        try (Connection conn = DriverManager.getConnection(adminUrl, username, password)) {
-            conn.createStatement().execute(
-                    "SELECT pg_terminate_backend(pid) " +
-                            "FROM pg_stat_activity " +
-                            "WHERE datname = 'streaming_test' AND pid <> pg_backend_pid();"
-            );
-
-            conn.createStatement().execute("DROP DATABASE streaming_test");
-        }
+        createConnection(dataSourceProperties.getUsername(),
+                dataSourceProperties.getPassword()).createStatement().execute("DROP DATABASE streaming_test");
     }
 
     @BeforeEach
     public void beforeEach() throws IOException {
+        videoRepository.deleteAll();
         cleanUploadDir();
     }
-
     @AfterEach
-    public void afterEach() throws IOException {
+    public void afterEach() throws IOException{
         cleanUploadDir();
     }
 
-    private void cleanUpLogDir() throws IOException {
-        Path path = Paths.get(logPath);
-
-        if (Files.exists(path)) {
-            Files.walk(path)
-                    .sorted(Comparator.reverseOrder())
-                    .map(Path::toFile)
-                    .forEach(File::delete);
-        }
-    }
-
-    private void cleanUploadDir() throws IOException {
-        Path uploadDir = VideoStorageConfig.UPLOAD_DIR;
-        Files.createDirectories(uploadDir);
-
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(uploadDir)) {
-            for (Path file : stream) {
-                Files.deleteIfExists(file);
-            }
-        }
-    }
 
     @Test
     public void shouldSaveVideoInTheCorrectLocationWithNameBasedOnId() throws Exception {
@@ -127,7 +93,8 @@ public class VideoControllerTest {
 
     @Test
     public void shouldConvertTheVideoThenSave() throws Exception {
-        File file = new File(getClass().getClassLoader().getResource("videos/old_meme.mp4").getFile());
+        File file = new File(Objects
+                .requireNonNull(getClass().getClassLoader().getResource("videos/test_video.webm")).getFile());
 
         mockMvc.perform(post("/api/videos")
                         .contentType("application/octet-stream")
