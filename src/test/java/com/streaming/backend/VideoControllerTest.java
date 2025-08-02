@@ -6,6 +6,7 @@ import com.streaming.backend.config.VideoStorageConfig;
 import com.streaming.backend.models.Video;
 import com.streaming.backend.repositories.VideoRepository;
 import com.streaming.backend.utilities.ProfileChecker;
+import com.streaming.backend.utilities.Util;
 import com.streaming.backend.utilities.Utilities;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,8 +28,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
-import static com.streaming.backend.utilities.Util.cleanUploadDir;
-import static com.streaming.backend.utilities.Util.createConnection;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -38,7 +39,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @ContextConfiguration(initializers = DatabaseTestInitializer.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class VideoControllerTest {
+
+    @Autowired
+    private Util util;
 
     @Autowired
     private MockMvc mockMvc;
@@ -56,18 +61,20 @@ public class VideoControllerTest {
 
     @AfterAll
     void dropDatabaseAfterTests() throws SQLException {
-        createConnection(dataSourceProperties.getUsername(),
+        util.createConnection(dataSourceProperties.getUsername(),
                 dataSourceProperties.getPassword()).createStatement().execute("DROP DATABASE streaming_test");
     }
 
     @BeforeEach
     public void beforeEach() throws IOException {
         videoRepository.deleteAll();
-        cleanUploadDir();
+        util.resetVideoSequence();
+        util.cleanUploadDir();
     }
+
     @AfterEach
     public void afterEach() throws IOException{
-        cleanUploadDir();
+        util.cleanUploadDir();
     }
 
 
@@ -133,5 +140,28 @@ public class VideoControllerTest {
 
         Path logFile = Paths.get(logPath, month, day + ".log");
         assertTrue(Files.exists(logFile), "Log file should exist: " + logFile.toAbsolutePath());
+    }
+
+    @Test
+    public void shouldReceiveAVideoFromIdAndResolveHisLinkPath() throws Exception {
+        // Need to populate database for this test
+        File file = new File(Objects
+                .requireNonNull(getClass().getClassLoader().getResource("videos/test_video.webm")).getFile());
+
+        mockMvc.perform(post("/api/videos")
+                        .contentType("application/octet-stream")
+                        .content(Files.readAllBytes(file.toPath())))
+                .andExpect(status().isCreated());
+
+
+        MvcResult mvcResult = mockMvc.perform(get("/api/videos/1")).andExpect(status().isOk()).andReturn();
+        String publicUrl = mvcResult.getResponse().getContentAsString();
+
+        assertThat(publicUrl).startsWith("/var/www/videos/");
+    }
+
+    @Test
+    public void shouldreceiveNotFoundCaseIdIsNotValid() throws Exception {
+        mockMvc.perform(get("/api/videos/9999")).andExpect(status().isNotFound());
     }
 }

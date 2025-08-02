@@ -6,6 +6,6 @@ CREATE TABLE video (
 );
 
 CREATE SEQUENCE video_file_seq
-    START WITH 0
+    START WITH 1
     INCREMENT BY 1
     MINVALUE 0;

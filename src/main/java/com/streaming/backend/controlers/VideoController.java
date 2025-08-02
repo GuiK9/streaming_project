@@ -35,4 +35,18 @@ public class VideoController {
                     .body("Error when saving the video: " + e.getMessage());
         }
     }
+
+    @GetMapping("/{videoId}")
+    public ResponseEntity<String> getVideoUrl(@PathVariable Long videoId) {
+        try{
+            String publicUrl = videoService.getPublicURl(videoId);
+            if (publicUrl == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(publicUrl);
+        } catch (Exception e) {
+            logger.error("Failed to generate public video URL", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error generating video URL: " + e.getMessage());
+        }
+    }
 }

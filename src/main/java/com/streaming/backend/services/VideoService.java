@@ -4,6 +4,7 @@ import com.streaming.backend.config.VideoStorageConfig;
 import com.streaming.backend.models.Video;
 import com.streaming.backend.repositories.VideoRepository;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -64,4 +65,22 @@ public class VideoService {
                 .longValue();
     }
 
+    public String getPublicURl(Long videoId) {
+        try {
+            String pathArchive = videoRepository.getReferenceById(videoId).getPathArchive();
+            return extractVarPath(pathArchive);
+        } catch (EntityNotFoundException e) {
+            return null;
+        }
+    }
+
+    public String extractVarPath(String fullPath) {
+        String marker = "/var/";
+        int index = fullPath.indexOf(marker);
+        if (index != -1) {
+            return fullPath.substring(index);
+        } else {
+            throw new IllegalArgumentException("Path does not contain /var/: " + fullPath);
+        }
+    }
 }

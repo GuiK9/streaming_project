@@ -1,6 +1,9 @@
 package com.streaming.backend.utilities;
 
 import com.streaming.backend.config.VideoStorageConfig;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,9 +16,13 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Comparator;
 
+@Service
 public class Util {
 
-    public static Connection createConnection(String username, String password) throws SQLException {
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    public Connection createConnection(String username, String password) throws SQLException {
         String adminUrl = "jdbc:postgresql://localhost:5432/postgres";
 
         Connection conn = DriverManager.getConnection(adminUrl, username, password);
@@ -27,7 +34,7 @@ public class Util {
         return conn;
     }
 
-    public static void cleanUpLogDir(String logPath) throws IOException {
+    public void cleanUpLogDir(String logPath) throws IOException {
         Path path = Paths.get(logPath);
 
         if (Files.exists(path)) {
@@ -38,7 +45,7 @@ public class Util {
         }
     }
 
-    public static void cleanUploadDir() throws IOException {
+    public void cleanUploadDir() throws IOException {
         Path uploadDir = VideoStorageConfig.UPLOAD_DIR;
         Files.createDirectories(uploadDir);
 
@@ -47,5 +54,11 @@ public class Util {
                 Files.deleteIfExists(file);
             }
         }
+    }
+
+    public void resetVideoSequence() {
+        jdbcTemplate.execute("ALTER SEQUENCE video_file_seq RESTART WITH 1");
+        jdbcTemplate.execute("ALTER SEQUENCE video_id_seq RESTART WITH 1");
+
     }
 }
