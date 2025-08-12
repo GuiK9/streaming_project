@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 
 @Service
 public class VideoService {
@@ -82,5 +83,10 @@ public class VideoService {
         } else {
             throw new IllegalArgumentException("Path does not contain /var/: " + fullPath);
         }
+    }
+
+    // interesting pagination
+    public List<Video> videosReturnAllVideos() {
+        return videoRepository.findAll();
     }
 }

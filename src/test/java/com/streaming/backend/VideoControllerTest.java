@@ -1,5 +1,6 @@
 package com.streaming.backend;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.streaming.backend.config.DataSourceProperties;
 import com.streaming.backend.config.DatabaseTestInitializer;
 import com.streaming.backend.config.VideoStorageConfig;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -57,7 +59,6 @@ public class VideoControllerTest {
     @Autowired
     private DataSourceProperties dataSourceProperties;
 
-    ProfileChecker profileChecker;
 
     @AfterAll
     void dropDatabaseAfterTests() throws SQLException {
@@ -161,7 +162,32 @@ public class VideoControllerTest {
     }
 
     @Test
-    public void shouldreceiveNotFoundCaseIdIsNotValid() throws Exception {
+    public void shouldReceiveNotFoundCaseIdIsNotValid() throws Exception {
         mockMvc.perform(get("/api/videos/9999")).andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void shouldReturnAllDataOfVideos() throws Exception {
+        File file = new File(Objects
+                .requireNonNull(getClass().getClassLoader().getResource("videos/test_video.webm")).getFile());
+
+        int amount = 5;
+        for (int i = 0; i < amount; i++) {
+            mockMvc.perform(post("/api/videos")
+                            .contentType("application/octet-stream")
+                            .content(Files.readAllBytes(file.toPath())))
+                    .andExpect(status().isCreated());
+        }
+
+        MvcResult mockResult = mockMvc.perform(get("/api/videos")).andReturn();
+
+        assertThat(mockResult.getResponse().getStatus())
+                .isEqualTo(HttpStatus.OK.value());
+
+        ObjectMapper mapper = new ObjectMapper();
+        String body = mockResult.getResponse().getContentAsString();
+        Video[] videos = mapper.readValue(body, Video[].class);
+
+        assertThat(videos.length).isEqualTo(amount);
     }
 }

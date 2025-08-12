@@ -1,13 +1,19 @@
 package com.streaming.backend.controlers;
 
+import com.streaming.backend.models.Video;
 import com.streaming.backend.services.VideoConversionService;
 import com.streaming.backend.services.VideoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Collections;
+import java.util.List;
 
 
 @RestController
@@ -32,7 +38,7 @@ public class VideoController {
             logger.error("Error when saving video", e);
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error when saving the video: " + e.getMessage());
+                    .body("Error when saving the video");
         }
     }
 
@@ -46,7 +52,25 @@ public class VideoController {
             return ResponseEntity.status(HttpStatus.OK).body(publicUrl);
         } catch (Exception e) {
             logger.error("Failed to generate public video URL", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error generating video URL: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error generating video URL");
+        }
+    }
+
+    @GetMapping("/health")
+    public ResponseEntity<String> healthCheck() {
+        return ResponseEntity.ok("ok");
+    }
+
+    @GetMapping("")
+    public ResponseEntity<?> getAllVideos() {
+        try {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(videoService.videosReturnAllVideos());
+        } catch (Exception e) {
+            logger.error("Failed to return all videos", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error returning all videos");
         }
     }
 }
