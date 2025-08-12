@@ -6,7 +6,6 @@ import com.streaming.backend.config.DatabaseTestInitializer;
 import com.streaming.backend.config.VideoStorageConfig;
 import com.streaming.backend.models.Video;
 import com.streaming.backend.repositories.VideoRepository;
-import com.streaming.backend.utilities.ProfileChecker;
 import com.streaming.backend.utilities.Util;
 import com.streaming.backend.utilities.Utilities;
 import org.junit.jupiter.api.*;
@@ -189,5 +188,15 @@ public class VideoControllerTest {
         Video[] videos = mapper.readValue(body, Video[].class);
 
         assertThat(videos.length).isEqualTo(amount);
+    }
+
+    @Test
+    public void shouldReturnAnEmptyListIfThereIsNoVideo() throws Exception {
+        MvcResult mockResult = mockMvc.perform(get("/api/videos")).andReturn();
+        String body = mockResult.getResponse().getContentAsString();
+        ObjectMapper mapper = new ObjectMapper();
+        Video[] videos = mapper.readValue(body, Video[].class);
+
+        assertThat(videos).isEmpty();
     }
 }
