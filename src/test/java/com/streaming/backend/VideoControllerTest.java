@@ -1,9 +1,11 @@
 package com.streaming.backend;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.streaming.backend.config.DataSourceProperties;
 import com.streaming.backend.config.DatabaseTestInitializer;
 import com.streaming.backend.config.VideoStorageConfig;
+import com.streaming.backend.dto.RequestCreateVideoDTO;
 import com.streaming.backend.models.Video;
 import com.streaming.backend.repositories.VideoRepository;
 import com.streaming.backend.utilities.Util;
@@ -14,10 +16,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,6 +63,9 @@ public class VideoControllerTest {
     @Autowired
     private DataSourceProperties dataSourceProperties;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
 
     @AfterAll
     void dropDatabaseAfterTests() throws SQLException {
@@ -83,9 +91,7 @@ public class VideoControllerTest {
         File file = new File(Objects
                 .requireNonNull(getClass().getClassLoader().getResource("videos/test_video.webm")).getFile());
 
-        mockMvc.perform(post("/api/videos")
-                        .contentType("application/octet-stream")
-                        .content(Files.readAllBytes(file.toPath())))
+        mockMvc.perform(Util.buildVideoUploadRequest(Files.readAllBytes(file.toPath())))
                 .andExpect(status().isCreated());
 
         List<Video> videos = videoRepository.findAll();
@@ -101,11 +107,9 @@ public class VideoControllerTest {
     @Test
     public void shouldConvertTheVideoThenSave() throws Exception {
         File file = new File(Objects
-                .requireNonNull(getClass().getClassLoader().getResource("videos/test_video.webm")).getFile());
+                .requireNonNull(Util.class.getClassLoader().getResource("videos/test_video.webm")).getFile());
 
-        mockMvc.perform(post("/api/videos")
-                        .contentType("application/octet-stream")
-                        .content(Files.readAllBytes(file.toPath())))
+        mockMvc.perform(Util.buildVideoUploadRequest(Files.readAllBytes(file.toPath())))
                 .andExpect(status().isCreated());
 
         List<Video> videos = videoRepository.findAll();
@@ -117,9 +121,7 @@ public class VideoControllerTest {
     public void shouldMadeRollbackInfailInsertCase() throws Exception {
         byte[] badBytes = "bytes_WithError".getBytes();
 
-        mockMvc.perform(post("/api/videos")
-                        .contentType("application/octet-stream")
-                        .content(badBytes))
+        mockMvc.perform(Util.buildVideoUploadRequest(badBytes))
                 .andExpect(status().isInternalServerError());
 
         List<Video> videos = videoRepository.findAll();
@@ -146,11 +148,9 @@ public class VideoControllerTest {
     public void shouldReceiveAVideoFromIdAndResolveHisLinkPath() throws Exception {
         // Need to populate database for this test
         File file = new File(Objects
-                .requireNonNull(getClass().getClassLoader().getResource("videos/test_video.webm")).getFile());
+                .requireNonNull(Util.class.getClassLoader().getResource("videos/test_video.webm")).getFile());
 
-        mockMvc.perform(post("/api/videos")
-                        .contentType("application/octet-stream")
-                        .content(Files.readAllBytes(file.toPath())))
+        mockMvc.perform(Util.buildVideoUploadRequest(Files.readAllBytes(file.toPath())))
                 .andExpect(status().isCreated());
 
 
@@ -172,9 +172,7 @@ public class VideoControllerTest {
 
         int amount = 5;
         for (int i = 0; i < amount; i++) {
-            mockMvc.perform(post("/api/videos")
-                            .contentType("application/octet-stream")
-                            .content(Files.readAllBytes(file.toPath())))
+            mockMvc.perform(Util.buildVideoUploadRequest(Files.readAllBytes(file.toPath())))
                     .andExpect(status().isCreated());
         }
 

@@ -1,6 +1,7 @@
 package com.streaming.backend.services;
 
 import com.streaming.backend.config.VideoStorageConfig;
+import com.streaming.backend.dto.RequestCreateVideoDTO;
 import com.streaming.backend.models.Video;
 import com.streaming.backend.repositories.VideoRepository;
 import jakarta.persistence.EntityManager;
@@ -9,6 +10,7 @@ import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -32,14 +34,14 @@ public class VideoService {
     private EntityManager entityManager;
 
     @Transactional(rollbackFor = Exception.class)
-    public void processVideoUploaded(byte[] fileBytes) throws IOException, InterruptedException {
+    public void processVideoUploaded(MultipartFile fileBytes, RequestCreateVideoDTO requestCreateVideoDTO) throws IOException, InterruptedException {
         Video video = Video.builder()
-                .title("temp_title")
-                .description("temp_description")
+                .title(requestCreateVideoDTO.title())
+                .description(requestCreateVideoDTO.description())
                 .build();
 
         Path tempFilePath = Files.createTempFile("upload_", ".tmp");
-        Files.write(tempFilePath, fileBytes);
+        Files.write(tempFilePath, fileBytes.getBytes());
         File tempFile = tempFilePath.toFile();
 
         Path destination = VideoStorageConfig.UPLOAD_DIR.resolve(getNextSeqVideo() + ".mp4");

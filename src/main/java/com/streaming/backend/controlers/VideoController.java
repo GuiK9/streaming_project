@@ -1,19 +1,15 @@
 package com.streaming.backend.controlers;
 
-import com.streaming.backend.models.Video;
+import com.streaming.backend.dto.RequestCreateVideoDTO;
 import com.streaming.backend.services.VideoConversionService;
 import com.streaming.backend.services.VideoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Collections;
-import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 
 @RestController
@@ -30,9 +26,12 @@ public class VideoController {
     }
 
     @PostMapping("")
-    public ResponseEntity<?> uploadVideo(@RequestBody byte[] file) {
+    public ResponseEntity<?> uploadVideo(
+            @RequestPart("metadata") RequestCreateVideoDTO requestCreateVideoDTO,
+            @RequestPart("video") MultipartFile fileVideo
+    ) {
         try {
-            videoService.processVideoUploaded(file);
+            videoService.processVideoUploaded(fileVideo, requestCreateVideoDTO);
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (Exception e) {
             logger.error("Error when saving video", e);
