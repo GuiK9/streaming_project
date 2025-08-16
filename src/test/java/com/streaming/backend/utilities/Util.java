@@ -69,10 +69,7 @@ public class Util {
 
     }
 
-    public static MockMultipartHttpServletRequestBuilder buildVideoUploadRequest(byte[] bytes) throws IOException {
-        RequestCreateVideoDTO metadata =
-                new RequestCreateVideoDTO("Title temp test", "Big string with description test");
-
+    public static MockMultipartHttpServletRequestBuilder buildVideoUploadRequest(byte[] bytes, RequestCreateVideoDTO metadata) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         byte[] metaDataJson = objectMapper.writeValueAsBytes(metadata);
 

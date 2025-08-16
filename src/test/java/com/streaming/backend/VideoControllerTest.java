@@ -91,7 +91,10 @@ public class VideoControllerTest {
         File file = new File(Objects
                 .requireNonNull(getClass().getClassLoader().getResource("videos/test_video.webm")).getFile());
 
-        mockMvc.perform(Util.buildVideoUploadRequest(Files.readAllBytes(file.toPath())))
+        RequestCreateVideoDTO metadata =
+                new RequestCreateVideoDTO("title_temp", "description_test");
+
+        mockMvc.perform(Util.buildVideoUploadRequest(Files.readAllBytes(file.toPath()), metadata))
                 .andExpect(status().isCreated());
 
         List<Video> videos = videoRepository.findAll();
@@ -109,7 +112,10 @@ public class VideoControllerTest {
         File file = new File(Objects
                 .requireNonNull(Util.class.getClassLoader().getResource("videos/test_video.webm")).getFile());
 
-        mockMvc.perform(Util.buildVideoUploadRequest(Files.readAllBytes(file.toPath())))
+        RequestCreateVideoDTO metadata =
+                new RequestCreateVideoDTO("title_temp", "description_test");
+
+        mockMvc.perform(Util.buildVideoUploadRequest(Files.readAllBytes(file.toPath()), metadata))
                 .andExpect(status().isCreated());
 
         List<Video> videos = videoRepository.findAll();
@@ -121,7 +127,10 @@ public class VideoControllerTest {
     public void shouldMadeRollbackInfailInsertCase() throws Exception {
         byte[] badBytes = "bytes_WithError".getBytes();
 
-        mockMvc.perform(Util.buildVideoUploadRequest(badBytes))
+        RequestCreateVideoDTO metadata =
+                new RequestCreateVideoDTO("title_temp", "description_test");
+
+        mockMvc.perform(Util.buildVideoUploadRequest(badBytes, metadata))
                 .andExpect(status().isInternalServerError());
 
         List<Video> videos = videoRepository.findAll();
@@ -150,7 +159,10 @@ public class VideoControllerTest {
         File file = new File(Objects
                 .requireNonNull(Util.class.getClassLoader().getResource("videos/test_video.webm")).getFile());
 
-        mockMvc.perform(Util.buildVideoUploadRequest(Files.readAllBytes(file.toPath())))
+        RequestCreateVideoDTO metadata =
+                new RequestCreateVideoDTO("title_temp", "description_test");
+
+        mockMvc.perform(Util.buildVideoUploadRequest(Files.readAllBytes(file.toPath()), metadata))
                 .andExpect(status().isCreated());
 
 
@@ -170,9 +182,12 @@ public class VideoControllerTest {
         File file = new File(Objects
                 .requireNonNull(getClass().getClassLoader().getResource("videos/test_video.webm")).getFile());
 
+        RequestCreateVideoDTO metadata =
+                new RequestCreateVideoDTO("title_temp", "description_test");
+
         int amount = 5;
         for (int i = 0; i < amount; i++) {
-            mockMvc.perform(Util.buildVideoUploadRequest(Files.readAllBytes(file.toPath())))
+            mockMvc.perform(Util.buildVideoUploadRequest(Files.readAllBytes(file.toPath()), metadata))
                     .andExpect(status().isCreated());
         }
 
@@ -196,5 +211,18 @@ public class VideoControllerTest {
         Video[] videos = mapper.readValue(body, Video[].class);
 
         assertThat(videos).isEmpty();
+    }
+
+    @Test
+    public void shouldSaveVideoWithTheRightNameAndDescription() throws Exception{
+        File file = new File(Objects
+                .requireNonNull(getClass().getClassLoader().getResource("videos/test_video.webm")).getFile());
+
+        RequestCreateVideoDTO metadata =
+                new RequestCreateVideoDTO("Title temp test", "Big string with description test");
+
+        mockMvc.perform(Util.buildVideoUploadRequest(Files.readAllBytes(file.toPath()), metadata))
+                .andExpect(status().isCreated());
+
     }
 }
