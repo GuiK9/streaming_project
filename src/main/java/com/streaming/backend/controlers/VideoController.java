@@ -41,7 +41,7 @@ public class VideoController {
                     .body("Error when saving the video");
         }
     }
-
+//TODO Use DTO
     @GetMapping("/{videoId}")
     public ResponseEntity<String> getVideoUrl(@PathVariable Long videoId) {
         try{
@@ -62,6 +62,7 @@ public class VideoController {
         return ResponseEntity.ok("ok");
     }
 
+    //TODO all videos with dto
     @GetMapping("")
     public ResponseEntity<?> getAllVideos() {
         try {

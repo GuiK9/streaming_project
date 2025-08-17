@@ -54,7 +54,7 @@ public class VideoService {
         tempFile.delete();
 
         VideoResponseDTO videoDTO = new VideoResponseDTO(
-                video.getTitle(), video.getDescription(), video.getPathArchive());
+                video.getTitle(), video.getDescription(), extractVarPath(video.getPathArchive()));
 
         videoRepository.save(video);
 

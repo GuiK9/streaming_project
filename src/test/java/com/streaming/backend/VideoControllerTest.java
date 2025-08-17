@@ -198,12 +198,13 @@ public class VideoControllerTest {
     }
 
     @Test
-    public void ShouldResponseUsingDTO() throws Exception {
+    public void ShouldRespondUsingDTO() throws Exception {
         MvcResult mvcResult = mockMvc.perform(Util.sampleRequest()).andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString();
         VideoResponseDTO responseDto = objectMapper.readValue(contentAsString, VideoResponseDTO.class);
 
         assertThat(responseDto.title()).isEqualTo("title test");
         assertThat(responseDto.description()).contains("description test");
+        assertThat(responseDto.publicUrl()).startsWith("/var/");
     }
 }
