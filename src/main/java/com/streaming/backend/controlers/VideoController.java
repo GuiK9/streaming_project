@@ -31,8 +31,8 @@ public class VideoController {
             @RequestPart("video") MultipartFile fileVideo
     ) {
         try {
-            videoService.processVideoUploaded(fileVideo, requestCreateVideoDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).build();
+            String publicUrl = videoService.processVideoUploaded(fileVideo, requestCreateVideoDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(publicUrl);
         } catch (Exception e) {
             logger.error("Error when saving video", e);
             return ResponseEntity

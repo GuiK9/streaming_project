@@ -34,7 +34,7 @@ public class VideoService {
     private EntityManager entityManager;
 
     @Transactional(rollbackFor = Exception.class)
-    public void processVideoUploaded(MultipartFile fileBytes, RequestCreateVideoDTO requestCreateVideoDTO) throws IOException, InterruptedException {
+    public String processVideoUploaded(MultipartFile fileBytes, RequestCreateVideoDTO requestCreateVideoDTO) throws IOException, InterruptedException {
         Video video = Video.builder()
                 .title(requestCreateVideoDTO.title())
                 .description(requestCreateVideoDTO.description())
@@ -52,7 +52,10 @@ public class VideoService {
         //noinspection ResultOfMethodCallIgnored
         tempFile.delete();
 
+        String pathArchive = video.getPathArchive();
         videoRepository.save(video);
+
+        return extractVarPath(pathArchive);
     }
 
 

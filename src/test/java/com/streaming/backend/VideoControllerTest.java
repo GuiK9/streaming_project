@@ -33,6 +33,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -218,11 +219,17 @@ public class VideoControllerTest {
         File file = new File(Objects
                 .requireNonNull(getClass().getClassLoader().getResource("videos/test_video.webm")).getFile());
 
+        String titleTempTest = "Title temp test";
         RequestCreateVideoDTO metadata =
-                new RequestCreateVideoDTO("Title temp test", "Big string with description test");
+                new RequestCreateVideoDTO(titleTempTest, "Big string with description test");
 
         mockMvc.perform(Util.buildVideoUploadRequest(Files.readAllBytes(file.toPath()), metadata))
                 .andExpect(status().isCreated());
+
+        Optional<Video> newVideo = videoRepository.findById(1L);
+        String titleCreated = newVideo.get().getTitle();
+        
+        assertThat(titleCreated).isEqualTo(titleTempTest);
 
     }
 }
