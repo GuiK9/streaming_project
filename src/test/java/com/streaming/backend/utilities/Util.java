@@ -83,4 +83,20 @@ public class Util {
                 .file(metadataPart)
                 .file(videoPart);
     }
+
+    public static byte[] sampleBytes() throws IOException {
+        return Files.readAllBytes(new File(Objects
+                .requireNonNull(Util.class.getClassLoader().getResource("videos/test_video.webm")).getFile()).toPath());
+    }
+
+    public static RequestCreateVideoDTO sampleVideDTO() {
+        return new RequestCreateVideoDTO("title_test", "description_test");
+    }
+
+    public static MockMultipartHttpServletRequestBuilder sampleRequest() throws IOException {
+        byte[] bytes = Util.sampleBytes();
+        RequestCreateVideoDTO metadata = Util.sampleVideDTO();
+
+        return Util.buildVideoUploadRequest(bytes, metadata);
+    }
 }

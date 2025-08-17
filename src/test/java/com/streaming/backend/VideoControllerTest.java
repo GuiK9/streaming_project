@@ -1,6 +1,5 @@
 package com.streaming.backend;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.streaming.backend.config.DataSourceProperties;
 import com.streaming.backend.config.DatabaseTestInitializer;
@@ -16,13 +15,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -89,13 +85,7 @@ public class VideoControllerTest {
 
     @Test
     public void shouldSaveVideoInTheCorrectLocationWithNameBasedOnId() throws Exception {
-        File file = new File(Objects
-                .requireNonNull(getClass().getClassLoader().getResource("videos/test_video.webm")).getFile());
-
-        RequestCreateVideoDTO metadata =
-                new RequestCreateVideoDTO("title_temp", "description_test");
-
-        mockMvc.perform(Util.buildVideoUploadRequest(Files.readAllBytes(file.toPath()), metadata))
+        mockMvc.perform(Util.sampleRequest())
                 .andExpect(status().isCreated());
 
         List<Video> videos = videoRepository.findAll();
@@ -110,13 +100,7 @@ public class VideoControllerTest {
 
     @Test
     public void shouldConvertTheVideoThenSave() throws Exception {
-        File file = new File(Objects
-                .requireNonNull(Util.class.getClassLoader().getResource("videos/test_video.webm")).getFile());
-
-        RequestCreateVideoDTO metadata =
-                new RequestCreateVideoDTO("title_temp", "description_test");
-
-        mockMvc.perform(Util.buildVideoUploadRequest(Files.readAllBytes(file.toPath()), metadata))
+        mockMvc.perform(Util.sampleRequest())
                 .andExpect(status().isCreated());
 
         List<Video> videos = videoRepository.findAll();
@@ -128,8 +112,7 @@ public class VideoControllerTest {
     public void shouldMadeRollbackInfailInsertCase() throws Exception {
         byte[] badBytes = "bytes_WithError".getBytes();
 
-        RequestCreateVideoDTO metadata =
-                new RequestCreateVideoDTO("title_temp", "description_test");
+        RequestCreateVideoDTO metadata = Util.sampleVideDTO();
 
         mockMvc.perform(Util.buildVideoUploadRequest(badBytes, metadata))
                 .andExpect(status().isInternalServerError());
@@ -156,16 +139,8 @@ public class VideoControllerTest {
 
     @Test
     public void shouldReceiveAVideoFromIdAndResolveHisLinkPath() throws Exception {
-        // Need to populate database for this test
-        File file = new File(Objects
-                .requireNonNull(Util.class.getClassLoader().getResource("videos/test_video.webm")).getFile());
-
-        RequestCreateVideoDTO metadata =
-                new RequestCreateVideoDTO("title_temp", "description_test");
-
-        mockMvc.perform(Util.buildVideoUploadRequest(Files.readAllBytes(file.toPath()), metadata))
+        mockMvc.perform(Util.sampleRequest())
                 .andExpect(status().isCreated());
-
 
         MvcResult mvcResult = mockMvc.perform(get("/api/videos/1")).andExpect(status().isOk()).andReturn();
         String publicUrl = mvcResult.getResponse().getContentAsString();
@@ -180,15 +155,9 @@ public class VideoControllerTest {
 
     @Test
     public void shouldReturnAllDataOfVideos() throws Exception {
-        File file = new File(Objects
-                .requireNonNull(getClass().getClassLoader().getResource("videos/test_video.webm")).getFile());
-
-        RequestCreateVideoDTO metadata =
-                new RequestCreateVideoDTO("title_temp", "description_test");
-
         int amount = 5;
         for (int i = 0; i < amount; i++) {
-            mockMvc.perform(Util.buildVideoUploadRequest(Files.readAllBytes(file.toPath()), metadata))
+            mockMvc.perform(Util.sampleRequest())
                     .andExpect(status().isCreated());
         }
 
@@ -216,20 +185,16 @@ public class VideoControllerTest {
 
     @Test
     public void shouldSaveVideoWithTheRightNameAndDescription() throws Exception{
-        File file = new File(Objects
-                .requireNonNull(getClass().getClassLoader().getResource("videos/test_video.webm")).getFile());
-
         String titleTempTest = "Title temp test";
         RequestCreateVideoDTO metadata =
                 new RequestCreateVideoDTO(titleTempTest, "Big string with description test");
 
-        mockMvc.perform(Util.buildVideoUploadRequest(Files.readAllBytes(file.toPath()), metadata))
+        mockMvc.perform(Util.buildVideoUploadRequest(Util.sampleBytes(), metadata))
                 .andExpect(status().isCreated());
 
         Optional<Video> newVideo = videoRepository.findById(1L);
         String titleCreated = newVideo.get().getTitle();
-        
-        assertThat(titleCreated).isEqualTo(titleTempTest);
 
+        assertThat(titleCreated).isEqualTo(titleTempTest);
     }
 }
