@@ -1,6 +1,7 @@
 package com.streaming.backend.controlers;
 
 import com.streaming.backend.dto.RequestCreateVideoDTO;
+import com.streaming.backend.dto.VideoResponseDTO;
 import com.streaming.backend.services.VideoConversionService;
 import com.streaming.backend.services.VideoService;
 import org.slf4j.Logger;
@@ -31,8 +32,8 @@ public class VideoController {
             @RequestPart("video") MultipartFile fileVideo
     ) {
         try {
-            String publicUrl = videoService.processVideoUploaded(fileVideo, requestCreateVideoDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(publicUrl);
+            VideoResponseDTO videoResponseDTO = videoService.processVideoUploaded(fileVideo, requestCreateVideoDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(videoResponseDTO);
         } catch (Exception e) {
             logger.error("Error when saving video", e);
             return ResponseEntity

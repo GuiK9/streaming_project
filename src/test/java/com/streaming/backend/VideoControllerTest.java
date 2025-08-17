@@ -5,6 +5,7 @@ import com.streaming.backend.config.DataSourceProperties;
 import com.streaming.backend.config.DatabaseTestInitializer;
 import com.streaming.backend.config.VideoStorageConfig;
 import com.streaming.backend.dto.RequestCreateVideoDTO;
+import com.streaming.backend.dto.VideoResponseDTO;
 import com.streaming.backend.models.Video;
 import com.streaming.backend.repositories.VideoRepository;
 import com.streaming.backend.utilities.Util;
@@ -20,7 +21,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,7 +28,6 @@ import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -196,5 +195,15 @@ public class VideoControllerTest {
         String titleCreated = newVideo.get().getTitle();
 
         assertThat(titleCreated).isEqualTo(titleTempTest);
+    }
+
+    @Test
+    public void ShouldResponseUsingDTO() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(Util.sampleRequest()).andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString();
+        VideoResponseDTO responseDto = objectMapper.readValue(contentAsString, VideoResponseDTO.class);
+
+        assertThat(responseDto.title()).isEqualTo("title test");
+        assertThat(responseDto.description()).contains("description test");
     }
 }

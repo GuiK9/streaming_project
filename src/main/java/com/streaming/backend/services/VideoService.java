@@ -2,6 +2,7 @@ package com.streaming.backend.services;
 
 import com.streaming.backend.config.VideoStorageConfig;
 import com.streaming.backend.dto.RequestCreateVideoDTO;
+import com.streaming.backend.dto.VideoResponseDTO;
 import com.streaming.backend.models.Video;
 import com.streaming.backend.repositories.VideoRepository;
 import jakarta.persistence.EntityManager;
@@ -34,7 +35,7 @@ public class VideoService {
     private EntityManager entityManager;
 
     @Transactional(rollbackFor = Exception.class)
-    public String processVideoUploaded(MultipartFile fileBytes, RequestCreateVideoDTO requestCreateVideoDTO) throws IOException, InterruptedException {
+    public VideoResponseDTO processVideoUploaded(MultipartFile fileBytes, RequestCreateVideoDTO requestCreateVideoDTO) throws IOException, InterruptedException {
         Video video = Video.builder()
                 .title(requestCreateVideoDTO.title())
                 .description(requestCreateVideoDTO.description())
@@ -52,10 +53,12 @@ public class VideoService {
         //noinspection ResultOfMethodCallIgnored
         tempFile.delete();
 
-        String pathArchive = video.getPathArchive();
+        VideoResponseDTO videoDTO = new VideoResponseDTO(
+                video.getTitle(), video.getDescription(), video.getPathArchive());
+
         videoRepository.save(video);
 
-        return extractVarPath(pathArchive);
+        return videoDTO;
     }
 
 

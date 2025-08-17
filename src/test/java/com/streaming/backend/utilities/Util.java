@@ -90,7 +90,7 @@ public class Util {
     }
 
     public static RequestCreateVideoDTO sampleVideDTO() {
-        return new RequestCreateVideoDTO("title_test", "description_test");
+        return new RequestCreateVideoDTO("title test", "description test");
     }
 
     public static MockMultipartHttpServletRequestBuilder sampleRequest() throws IOException {
