@@ -5,6 +5,7 @@ import com.streaming.backend.dto.RequestCreateVideoDTO;
 import com.streaming.backend.dto.VideoResponseDTO;
 import com.streaming.backend.models.Video;
 import com.streaming.backend.repositories.VideoRepository;
+import com.streaming.backend.utilities.Utilities;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
@@ -54,7 +55,7 @@ public class VideoService {
         tempFile.delete();
 
         VideoResponseDTO videoDTO = new VideoResponseDTO(
-                video.getTitle(), video.getDescription(), extractVarPath(video.getPathArchive()));
+                video.getTitle(), video.getDescription(), Utilities.extractVarPath(video.getPathArchive()));
 
         videoRepository.save(video);
 
@@ -77,24 +78,17 @@ public class VideoService {
     public String getPublicURl(Long videoId) {
         try {
             String pathArchive = videoRepository.getReferenceById(videoId).getPathArchive();
-            return extractVarPath(pathArchive);
+            return Utilities.extractVarPath(pathArchive);
         } catch (EntityNotFoundException e) {
             return null;
         }
     }
 
-    public String extractVarPath(String fullPath) {
-        String marker = "/var/";
-        int index = fullPath.indexOf(marker);
-        if (index != -1) {
-            return fullPath.substring(index);
-        } else {
-            throw new IllegalArgumentException("Path does not contain /var/: " + fullPath);
-        }
-    }
 
-    // interesting pagination
-    public List<Video> videosReturnAllVideos() {
-        return videoRepository.findAll();
+    // TODO review this
+    public List<VideoResponseDTO> videosReturnAllVideos() {
+        return videoRepository.findAll().stream()
+                .map(VideoResponseDTO::from)
+                .toList();
     }
 }

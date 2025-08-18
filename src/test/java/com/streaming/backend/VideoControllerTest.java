@@ -167,9 +167,9 @@ public class VideoControllerTest {
 
         ObjectMapper mapper = new ObjectMapper();
         String body = mockResult.getResponse().getContentAsString();
-        Video[] videos = mapper.readValue(body, Video[].class);
+        List<VideoResponseDTO> videoResponseDTO = List.of(mapper.readValue(body, VideoResponseDTO[].class));
 
-        assertThat(videos.length).isEqualTo(amount);
+        assertThat(videoResponseDTO.size()).isEqualTo(amount);
     }
 
     @Test
