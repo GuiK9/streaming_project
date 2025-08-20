@@ -16,4 +16,15 @@ public class Utilities {
             throw new IllegalArgumentException("Path does not contain /var/: " + fullPath);
         }
     }
+
+    public static String extractNamePath(String fullPath) {
+        String marker = "/videos/";
+        int index = fullPath.indexOf(marker);
+        if (index != -1) {
+            String substring = fullPath.substring(index + marker.length());
+            return substring;
+        } else {
+            throw new IllegalArgumentException("Path does not contain /var/www/videos/: " + fullPath);
+        }
+    }
 }

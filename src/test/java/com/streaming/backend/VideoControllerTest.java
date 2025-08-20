@@ -205,6 +205,6 @@ public class VideoControllerTest {
 
         assertThat(responseDto.title()).isEqualTo("title test");
         assertThat(responseDto.description()).contains("description test");
-        assertThat(responseDto.publicUrl()).startsWith("/var/");
+        assertThat(responseDto.publicName()).startsWith("/var/");
     }
 }

@@ -84,8 +84,6 @@ public class VideoService {
         }
     }
 
-
-    // TODO review this
     public List<VideoResponseDTO> videosReturnAllVideos() {
         return videoRepository.findAll().stream()
                 .map(VideoResponseDTO::from)

@@ -6,14 +6,14 @@ import com.streaming.backend.utilities.Utilities;
 public record VideoResponseDTO(
         String title,
         String description,
-        String publicUrl
+        String publicName
 ) {
 
     public static VideoResponseDTO from(Video video) {
         return new VideoResponseDTO(
                 video.getTitle(),
                 video.getDescription(),
-                Utilities.extractVarPath(video.getPathArchive())
+                Utilities.extractNamePath(video.getPathArchive())
         );
     }
 }

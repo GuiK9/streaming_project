@@ -62,7 +62,6 @@ public class VideoController {
         return ResponseEntity.ok("ok");
     }
 
-    //TODO all videos with dto
     @GetMapping("")
     public ResponseEntity<?> getAllVideos() {
         try {
