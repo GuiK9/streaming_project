@@ -64,8 +64,9 @@ public class VideoService {
 
 
     private static void saveVideoFile(File file, Path destination) throws IOException, InterruptedException {
-        ByteArrayInputStream convertedVideo = VideoConversionService.convertToMp4(file);
-        Files.copy(convertedVideo, destination, StandardCopyOption.REPLACE_EXISTING);
+        //ByteArrayInputStream convertedVideo = VideoConversionService.convertToMp4(file);
+
+        Files.copy(file.toPath(), destination, StandardCopyOption.REPLACE_EXISTING);
     }
 
     public Long getNextSeqVideo() {
