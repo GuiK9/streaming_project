@@ -26,6 +26,7 @@ public class VideoController {
         this.videoService = videoService;
     }
 
+    // TODO update to use a public url with proxy from nginx
     @PostMapping("")
     public ResponseEntity<?> uploadVideo(
             @RequestPart("metadata") RequestCreateVideoDTO requestCreateVideoDTO,

@@ -20,7 +20,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class VideoService {
@@ -65,8 +68,13 @@ public class VideoService {
 
     private static void saveVideoFile(File file, Path destination) throws IOException, InterruptedException {
         //ByteArrayInputStream convertedVideo = VideoConversionService.convertToMp4(file);
-
         Files.copy(file.toPath(), destination, StandardCopyOption.REPLACE_EXISTING);
+        Set<PosixFilePermission> perms = new HashSet<>();
+        perms.add(PosixFilePermission.OWNER_READ);
+        perms.add(PosixFilePermission.OWNER_WRITE);
+        perms.add(PosixFilePermission.GROUP_READ);
+        perms.add(PosixFilePermission.GROUP_WRITE);
+        Files.setPosixFilePermissions(destination, perms);
     }
 
     public Long getNextSeqVideo() {

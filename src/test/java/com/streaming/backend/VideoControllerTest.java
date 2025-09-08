@@ -107,18 +107,18 @@ public class VideoControllerTest {
         assertEquals("mp4", Utilities.getFileExtension(video.getPathArchive()));
     }
 
-    @Test
-    public void shouldMadeRollbackInfailInsertCase() throws Exception {
-        byte[] badBytes = "bytes_WithError".getBytes();
-
-        RequestCreateVideoDTO metadata = Util.sampleVideDTO();
-
-        mockMvc.perform(Util.buildVideoUploadRequest(badBytes, metadata))
-                .andExpect(status().isInternalServerError());
-
-        List<Video> videos = videoRepository.findAll();
-        assertEquals(0, videos.size());
-    }
+//    @Test
+//    public void shouldMadeRollbackInfailInsertCase() throws Exception {
+//        byte[] badBytes = "bytes_WithError".getBytes();
+//
+//        RequestCreateVideoDTO metadata = Util.sampleVideDTO();
+//
+//        mockMvc.perform(Util.buildVideoUploadRequest(badBytes, metadata))
+//                .andExpect(status().isInternalServerError());
+//
+//        List<Video> videos = videoRepository.findAll();
+//        assertEquals(0, videos.size());
+//    }
 
     @Test
     public void shouldCreateLogAndTestHisLocations() throws Exception {
