@@ -11,7 +11,7 @@ public class DatabaseTestInitializer implements ApplicationContextInitializer<Co
 
     @Override
     public void initialize(ConfigurableApplicationContext context) {
-        String adminUrl = "jdbc:postgresql://localhost:5432/postgres";
+        String adminUrl = context.getEnvironment().getProperty("spring.datasource.url");
         String username = context.getEnvironment().getProperty("spring.datasource.username");
         String password = context.getEnvironment().getProperty("spring.datasource.password");
         String dbName = "streaming_test";
