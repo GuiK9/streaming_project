@@ -13,6 +13,12 @@ jobs:
   build_and_push:
     runs-on: ubuntu-latest
     steps:
+      - name: Diagnostico de Secrets do Docker
+        run: | # <--- AQUI DEVE ESTAR PERFEITAMENTE ALINHADO
+          echo "Verificando DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}"
+          echo "Verificando DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}"
+          echo "Verificando se DOCKER_USERNAME tem um valor: ${{ secrets.DOCKER_USERNAME != '' }}"
+
       - name: Checkout Code
         uses: actions/checkout@v4
 
