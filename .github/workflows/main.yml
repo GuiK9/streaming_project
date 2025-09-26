@@ -50,6 +50,12 @@ jobs:
     needs: build_and_push
     runs-on: ubuntu-latest
     steps:
+      - name: Diagnostico de Secrets do Docker
+        run: | # <--- AQUI DEVE ESTAR PERFEITAMENTE ALINHADO
+            echo "Verificando OCI_HOST: ${{ secrets.OCI_HOST }}"
+            echo "Verificando OCI_USERNAME: ${{ secrets.OCI_USERNAME }}"
+            echo "Verificando se OCI_SSH_KEY tem um valor: ${{ secrets.OCI_SSH_KEY }}"
+
       - name: SSH into OCI Server and Deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
