@@ -62,7 +62,9 @@ jobs:
           host: ${{ secrets.OCI_HOST }}
           username: ${{ secrets.OCI_USERNAME }}
           key: ${{ secrets.OCI_SSH_KEY }}
-          source: "docker-compose.yml"
+          source: |
+            "docker-compose.yml"
+            "Dockerfile"
           target: "/home/ubuntu/streaming_project/"
 
       - name: SSH into OCI Server and Deploy
