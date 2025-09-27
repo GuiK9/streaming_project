@@ -38,7 +38,9 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ env.DOCKER_IMAGE_NAME }}:${{ env.TAG }}
+          tags: |
+            ${{ env.DOCKER_IMAGE_NAME }}:${{ env.TAG }}
+            ${{ env.DOCKER_IMAGE_NAME }}:latest
 
   deploy:
     needs: build_and_push
@@ -53,8 +55,7 @@ jobs:
           host: ${{ secrets.OCI_HOST }}
           username: ${{ secrets.OCI_USERNAME }}
           key: ${{ secrets.OCI_SSH_KEY }}
-          script: |
-            mkdir -p /home/ubuntu/streaming_project/
+          script: mkdir -p /home/ubuntu/streaming_project/
 
       - name: Copy Docker Compose to OCI Server
         uses: appleboy/scp-action@v0.1.7
@@ -62,7 +63,7 @@ jobs:
           host: ${{ secrets.OCI_HOST }}
           username: ${{ secrets.OCI_USERNAME }}
           key: ${{ secrets.OCI_SSH_KEY }}
-          source: "{docker-compose.yml,Dockerfile}"
+          source: "docker-compose.yml"
           target: "/home/ubuntu/streaming_project/"
 
       - name: SSH into OCI Server and Deploy
@@ -74,6 +75,6 @@ jobs:
           script: |
             echo "Deploying new version..."
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_ACCESS_TOKEN }}
-            docker pull ${{ env.DOCKER_IMAGE_NAME }}:${{ env.TAG }}
+            docker pull ${{ env.DOCKER_IMAGE_NAME }}:latest
             docker compose -f /home/ubuntu/streaming_project/docker-compose.yml up -d --force-recreate
             echo "Deployment complete!"
