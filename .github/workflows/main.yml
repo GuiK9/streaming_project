@@ -73,7 +73,7 @@ jobs:
           key: ${{ secrets.OCI_SSH_KEY }}
           script: |
             echo "Deploying new version..."
-            sudo docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_ACCESS_TOKEN }}
-            sudo docker pull ${{ env.DOCKER_IMAGE_NAME }}:${{ env.TAG }}
-            sudo docker-compose -f /home/ubuntu/streaming_project/docker-compose.yml up -d --force-recreate
+            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_ACCESS_TOKEN }}
+            docker pull ${{ env.DOCKER_IMAGE_NAME }}:${{ env.TAG }}
+            docker compose -f /home/ubuntu/streaming_project/docker-compose.yml up -d --force-recreate
             echo "Deployment complete!"
