@@ -44,6 +44,9 @@ jobs:
     needs: build_and_push
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
       - name: Create Remote Directory (Prerequisite)
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -61,7 +64,6 @@ jobs:
           key: ${{ secrets.OCI_SSH_KEY }}
           source: "docker-compose.yml"
           target: "/home/ubuntu/streaming_project/"
-          rm: true
 
       - name: SSH into OCI Server and Deploy
         uses: appleboy/ssh-action@v1.0.3
