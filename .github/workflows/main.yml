@@ -74,7 +74,17 @@ jobs:
           key: ${{ secrets.OCI_SSH_KEY }}
           script: |
             echo "Deploying new version..."
+            
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_ACCESS_TOKEN }}
+            
+            sudo chown -R ubuntu:ubuntu /home/ubuntu/streaming_project
+            sudo chmod -R 750 /home/ubuntu/streaming_project
+            
+            sudo mkdir -p /var/www/videos
+            sudo chown -R root:root /var/www/videos
+            sudo chmod -R 755 /var/www/videos
+            
             docker pull ${{ env.DOCKER_IMAGE_NAME }}:latest
             docker compose -f /home/ubuntu/streaming_project/docker-compose.yml up -d --force-recreate
+            
             echo "Deployment complete!"

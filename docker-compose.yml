@@ -28,7 +28,7 @@ services:
       - "8080:8080"
     volumes:
       - ./logs:/app/logs
-      - /videos:/var/www/videos
+      - /var/www/videos:/var/www/videos
 
 volumes:
   postgres_data:
