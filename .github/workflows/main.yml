@@ -49,14 +49,26 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Create Remote Directory (Prerequisite)
+      - name: Create Remote Directory and Inject Secrets
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.OCI_HOST }}
           username: ${{ secrets.OCI_USERNAME }}
           key: ${{ secrets.OCI_SSH_KEY }}
-          script: mkdir -p /home/ubuntu/streaming_project/
+          script: |
+            DEPLOY_PATH="/home/ubuntu/streaming_project"
+            mkdir -p $DEPLOY_PATH
 
+            echo "Criando arquivo .env com segredos..."
+            cat <<EOF > $DEPLOY_PATH/.env
+            DB_HOST=db
+            DB_PORT=5432
+            DB_USER=${{ secrets.DB_USER }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            DB_NAME=${{ secrets.DB_NAME }}
+            EOF
+            
+            chmod 600 $DEPLOY_PATH/.env
       - name: Copy Docker Compose to OCI Server
         uses: appleboy/scp-action@v0.1.7
         with:
