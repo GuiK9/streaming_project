@@ -37,7 +37,6 @@ out/
 .vscode/
 
 ### amb variables ###
-*.properties
 /logs
 
 /target/**
