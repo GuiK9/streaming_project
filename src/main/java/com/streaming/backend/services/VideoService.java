@@ -74,6 +74,7 @@ public class VideoService {
         perms.add(PosixFilePermission.OWNER_WRITE);
         perms.add(PosixFilePermission.GROUP_READ);
         perms.add(PosixFilePermission.GROUP_WRITE);
+        perms.add(PosixFilePermission.OTHERS_READ);
         Files.setPosixFilePermissions(destination, perms);
     }
 
