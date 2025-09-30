@@ -31,7 +31,7 @@ public class VideoController {
     public ResponseEntity<?> uploadVideo(
             @RequestPart("metadata") RequestCreateVideoDTO requestCreateVideoDTO,
             @RequestPart("video") MultipartFile fileVideo
-    ) {
+    ) { // update just for CI/CD demonstration
         try {
             VideoResponseDTO videoResponseDTO = videoService.processVideoUploaded(fileVideo, requestCreateVideoDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(videoResponseDTO);
