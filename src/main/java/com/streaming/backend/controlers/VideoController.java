@@ -12,6 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/api/videos")
@@ -61,6 +64,24 @@ public class VideoController {
     @GetMapping("/health")
     public ResponseEntity<String> healthCheck() {
         return ResponseEntity.ok("ok");
+    }
+
+    @GetMapping(value = "/pix", produces = "application/json")
+    public ResponseEntity<Map<String, Object>> pixLocation() {
+
+        Map<String, Object> calendario = new HashMap<>();
+        calendario.put("expiracao", 3600);
+
+        Map<String, Object> valor = new HashMap<>();
+        valor.put("original", "250.00");
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("calendario", calendario);
+        response.put("valor", valor);
+        response.put("chave", "4a98c3ed-6a2c-4c46-99ab-544f62e5584a");
+        response.put("txid", "735e8b809966477ab59eb3d4bb9adb5d");
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("")
